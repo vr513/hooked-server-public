@@ -81,7 +81,21 @@ router.post('/get-users', verifyToken, async(req,res,next) => {
       SET @uDislikes = NULL;
     `
   );
+  console.log(res1);
   res.send({data:res1[1]});
+});
+
+router.post("/get-my-matches", verifyToken, async (req, res, next) => {
+  const res1 = await query(
+    `
+    SELECT @uMatches := info.matches FROM info WHERE info.id = ${db.escape(
+      req.uid
+    )};
+    SELECT * FROM info WHERE (info.id MEMBER OF (@uMatches));
+    SET @uMatches = NULL;
+    `
+  );
+  res.send({ data: res1[1] });
 })
 
 module.exports = router;
