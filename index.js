@@ -5,6 +5,7 @@ const morgan = require("morgan");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const matchRoutes = require("./routes/match");
+const updateRoutes = require('./routes/update')
 
 require("dotenv").config();
 
@@ -22,6 +23,7 @@ app.use(
 app.use(authRoutes);
 app.use(userRoutes);
 app.use(matchRoutes);
+app.use(updateRoutes)
 
 app.get("/", (req, res, next) => {
   console.log("Welcome to the Hooked Project");
