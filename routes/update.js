@@ -24,6 +24,9 @@ const storage = getStorage();
 global.XMLHttpRequest = require("xhr2");
 
 router.post("/update-img", verifyToken, upload, async (req, res, next) => {
+  if(req.file === null || req.file === undefined){
+    res.status(400).send({msg:"Image file is required"})
+  }
   const targetFile = req.file;
   const oldPictureReference = ref(storage, req.body.pictureRef);
   try {
@@ -46,6 +49,42 @@ router.post("/update-img", verifyToken, upload, async (req, res, next) => {
 });
 
 router.post("/update-info", verifyToken, async (req, res, next) => {
+  if (req.body.genderPreference === null || req.body.genderPreference === undefined) {
+    res.status(400).send({ msg: "genderPreference field is required" });
+    return;
+  }
+  if (req.body.age_limit_lower === null || req.body.age_limit_lower === undefined) {
+    res.status(400).send({ msg: "Age Limit Lower field is required" });
+    return;
+  }
+  if (req.body.age_limit_upper === null || req.body.age_limit_upper === undefined) {
+    res.status(400).send({ msg: "Age Limit Upper field is required" });
+    return;
+  }
+  if (req.body.gender === null || req.body.gender === undefined) {
+    res.status(400).send({ msg: "Gender field is required" });
+    return;
+  }
+  if (req.body.age === null || req.body.age === undefined) {
+    res.status(400).send({ msg: "age field is required" });
+    return;
+  }
+  if (req.body.username === null || req.body.username === undefined) {
+    res.status(400).send({ msg: "username field is required" });
+    return;
+  }
+  if (req.body.collegeName === null || req.body.collegeName === undefined) {
+    res.status(400).send({ msg: "collegeName field is required" });
+    return;
+  }
+  if (req.body.gradYear === null || req.body.gradYear === undefined) {
+    res.status(400).send({ msg: "gradYear field is required" });
+    return;
+  }
+  if (req.body.matchLocality === null || req.body.matchLocality === undefined) {
+    res.status(400).send({ msg: "matchLocality field is required" });
+    return;
+  }
   try {
     const data = await query(
       `UPDATE info SET age = ${parseInt(req.body.age)} , gender = ${parseInt(

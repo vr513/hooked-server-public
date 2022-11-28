@@ -7,6 +7,10 @@ const util = require("util");
 const query = util.promisify(db.query).bind(db);
 
 router.post("/like", verifyToken, async (req, res, next) => {
+  if (req.body.targetUser === null || req.body.targetUser === undefined) {
+    res.status(400).send({ msg: "targetUser field is required" });
+    return;
+  }
   const targetUser = req.body.targetUser;
   try {
     const rows = await query(
@@ -58,6 +62,10 @@ router.post("/like", verifyToken, async (req, res, next) => {
 });
 
 router.post("/dislike", verifyToken, async (req, res, next) => {
+  if (req.body.targetUser === null || req.body.targetUser === undefined) {
+    res.status(400).send({ msg: "targetUser field is required" });
+    return;
+  }
   const targetUser = req.body.targetUser;
   try {
     const result = await query(
@@ -72,17 +80,37 @@ router.post("/dislike", verifyToken, async (req, res, next) => {
   }
 });
 
-router.post('/get-users', verifyToken, async(req,res,next) => {
+router.post("/get-users", verifyToken, async (req, res, next) => {
+  if (req.body.age_limit_lower === null || req.body.age_limit_lower === undefined) {
+    res.status(400).send({ msg: "Age Limit Lower field is required" });
+    return;
+  }
+  if (req.body.age_limit_upper === null || req.body.age_limit_upper === undefined) {
+    res.status(400).send({ msg: "Age Limit Upper field is required" });
+    return;
+  }
+  if (req.body.gender === null || req.body.gender === undefined) {
+    res.status(400).send({ msg: "Gender field is required" });
+    return;
+  }
   const res1 = await query(
     `
-      SELECT @uLikes := info.likes , @uDislikes := info.dislikes FROM info WHERE info.id = ${db.escape(req.uid)};
-      SELECT * FROM info WHERE (NOT info.id MEMBER OF(@uLikes)) && (NOT info.id MEMBER OF(@uDislikes)) && info.id != ${db.escape(req.uid)} && info.age >= ${db.escape(req.body.age_limit_lower)} && info.age <= ${db.escape(req.body.age_limit_upper)} && info.gender = ${db.escape(req.body.match_gender)};
+      SELECT @uLikes := info.likes , @uDislikes := info.dislikes FROM info WHERE info.id = ${db.escape(
+        req.uid
+      )};
+      SELECT * FROM info WHERE (NOT info.id MEMBER OF(@uLikes)) && (NOT info.id MEMBER OF(@uDislikes)) && info.id != ${db.escape(
+        req.uid
+      )} && info.age >= ${db.escape(
+      req.body.age_limit_lower
+    )} && info.age <= ${db.escape(
+      req.body.age_limit_upper
+    )} && info.gender = ${db.escape(req.body.match_gender)};
       SET @uLikes = NULL;
       SET @uDislikes = NULL;
     `
   );
   console.log(res1);
-  res.send({data:res1[1]});
+  res.send({ data: res1[1] });
 });
 
 router.post("/get-my-matches", verifyToken, async (req, res, next) => {
@@ -96,6 +124,6 @@ router.post("/get-my-matches", verifyToken, async (req, res, next) => {
     `
   );
   res.send({ data: res1[1] });
-})
+});
 
 module.exports = router;
