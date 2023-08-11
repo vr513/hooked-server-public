@@ -13,26 +13,24 @@ const {
   getBlob,
 } = require("firebase/storage");
 
-const multerStorage = multer.memoryStorage();
-const upload = multer({ storage: multerStorage }).single("file");
-
 const storage = getStorage();
 global.XMLHttpRequest = require("xhr2");
 
-router.post("/register", verifyToken, upload, async (req, res, next) => {
-  if(req.file === null || req.file === undefined){
+router.post("/register", verifyToken, async (req, res, next) => {
+  console.log(req.body)
+  if(req.body.file === null || req.body.file === undefined){
     res.status(400).send({msg : "Image File is required"});
     return;
   }
-  if (req.body.genderPreference === null || req.body.genderPreference === undefined) {
+  if (req.body.genderPrefrence === null || req.body.genderPrefrence === undefined) {
     res.status(400).send({ msg: "genderPreference field is required" });
     return;
   }
-  if (req.body.age_limit_lower === null || req.body.age_limit_lower === undefined) {
+  if (req.body.ageLimitLower === null || req.body.ageLimitLower === undefined) {
     res.status(400).send({ msg: "Age Limit Lower field is required" });
     return;
   }
-  if (req.body.age_limit_upper === null || req.body.age_limit_upper === undefined) {
+  if (req.body.ageLimitUpper === null || req.body.ageLimitUpper === undefined) {
     res.status(400).send({ msg: "Age Limit Upper field is required" });
     return;
   }
@@ -60,19 +58,12 @@ router.post("/register", verifyToken, upload, async (req, res, next) => {
     res.status(400).send({ msg: "matchLocality field is required" });
     return;
   }
-  const targetFile = req.file;
-  const name = req.uid;
-  const type = targetFile.originalname.split(".")[1];
-  const fileName = `${name}.${type}`;
-  const storageRef = ref(storage, fileName);
-  const snapshot = await uploadBytes(storageRef, targetFile.buffer);
-  const link = await getDownloadURL(snapshot.ref);
 
   db.query(
     `INSERT INTO info (id,age,gender,picture,city,match_gender_preference,age_limit_lower,age_limit_upper,match_locality,username,college_name,grad_year) VALUES ( ${db.escape(
       req.uid
     )} , ${parseInt(req.body.age)} , ${parseInt(req.body.gender)} ,${db.escape(
-      link
+      req.body.file
     )} , ${db.escape(req.body.city.toLowerCase())} , ${parseInt(
       req.body.genderPrefrence
     )} , ${parseInt(req.body.ageLimitLower)} , ${parseInt(
